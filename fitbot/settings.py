@@ -124,3 +124,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+TWILIO_ACCOUNT_SID='TWILIO_ACCOUNT_SID'
+TWILIO_AUTH_TOKEN='TWILIO_AUTH_TOKEN'
+TWILIO_WHATSAPP_NUMBER='TWILIO_WHATSAPP_NUMBER'
