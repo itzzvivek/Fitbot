@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.shortcuts import get_list_or_404
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework.response import Response
@@ -23,7 +24,7 @@ def register_client(request):
     message = f"Welcome, {username}! You have been successfully registered as a {membership_type} member."
     send_whatsapp_message(client, message)
 
-    return Response({'status': 'success', 'message': 'Client registration successful.'})
+    return Response({'status': 'success', 'message': 'Client registered successfully.'})
 
 
 
