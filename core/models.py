@@ -2,9 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 
 choices = [
-    {'basic': 'Basic'}, 
-    {'premium': 'Premium'}, 
+    ('basic', 'Basic'), 
+    ('premium', 'Premium'), 
 ]
+
 
 class Client(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

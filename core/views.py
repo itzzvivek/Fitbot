@@ -26,8 +26,6 @@ def register_client(request):
 
     return Response({'status': 'success', 'message': 'Client registered successfully.'})
 
-
-
 @api_view(['GET'])
 def check_attendance(request):
     client = request.user.client
