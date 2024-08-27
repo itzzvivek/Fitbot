@@ -1,11 +1,20 @@
 from django.shortcuts import render
 from django.shortcuts import get_list_or_404
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils import timezone
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+
+from twilio.rest import Client
+from twilio.twiml.messaging_response import MessagingResponse
+
 from  .models import Client, Attendance, Subscription
 from .utils import send_whatsapp_message
+
 
 
 @api_view(['POST'])
@@ -82,3 +91,20 @@ def handle_whatsapp_message(request):
         send_whatsapp_message(phone_number, "Sorry, I didn't understand that command.")
         return Response({'status': 'error', 'message': 'Invalid command'})
     
+
+@csrf_exempt
+def whatsapp_webhook(request):
+    incoming_msg = request.POST.get('Body', '').strip().lower()
+    from_number = request.POST.get('From', '')
+
+    response = MessagingResponse()
+    msg = response.message()
+
+    if incoming_msg == 'register':
+        msg.body('Please provide your username.')
+    elif incoming_msg == 'my plan':
+        msg.body('You are currently on the premium plan.')
+    else:
+        msg.body('Sorry, I did not understand that command.')
+
+    return HttpResponse(str(response), content_type='text/xml')
