@@ -2,12 +2,24 @@ from django.db import models
 from django.contrib.auth.models import User
 
 choices = [
-    ('basic', 'Basic'), 
-    ('premium', 'Premium'), 
+    ('monthly', 'Monthly'), 
+    ('quarterly', 'Quarterly'),
+    ('yearly', 'Yearly'), 
 ]
 
 
+class GymOwner(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    gym_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.gym_name
+    
+
 class Client(models.Model):
+    gym_owner = models.ForeignKey(GymOwner, on_delete=models.CASCADE, related_name='clients')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=15)
     membership_type = models.CharField(max_length=50, choices=choices)
