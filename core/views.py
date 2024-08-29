@@ -69,14 +69,30 @@ def subscription_status(request):
 
 
 @api_view(['POST'])
+def notify_expiring_subscriptions(request):
+    gym_owner = GymOwner.objects.get(user=request.user)
+    clients = gym_owner.clients.all()
+    expiring_clients = []
+
+    for client in clients:
+        subscription = Subscription.objects.get(client=client).last()
+        if subscription and (subscription.end_date - timezone.now().date()).days() > 7:
+            expiring_clients.append(client)
+            message = f"HI {client.user.username}, your subscription plan is expiring soon {subscription.end_date}. Please renew it to continue enjoying our services."
+            send_whatsapp_message(client.phone_number, message)
+
+    return Response({'status': 'success', 'message': f'{len(expiring_clients)} clients notified about expiring subscription'})
+
+
+@api_view(['POST'])
 def handle_whatsapp_message(request):
     phone_number = request.data.get('phone_number')
     message_body = request.data.get('message_body').strip().lower()
 
     if message_body == 'check-in':
-        return whatsapp_check_in(request)
+        return check_in(request)
     elif message_body == 'my_plan':
-        return whatsapp_subscription_status(request)
+        return subscription_status(request)
     else:
         send_whatsapp_message(phone_number, "Sorry, I didn't understand that command.")
         return Response({'status': 'error', 'message': 'Invalid command'})
