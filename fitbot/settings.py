@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-7i*i+ib#x!*7miic_6aqygox*+sknp!gf-p7y_^lc4!^45si!a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -131,6 +131,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-TWILIO_ACCOUNT_SID=os.environ.get('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN=os.environ.get('TWILIO_AUTH_TOKEN')
-TWILIO_WHATSAPP_NUMBER=os.environ.get('TWILIO_WHATSAPP_NUMBER')
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+TWILIO_WHATSAPP_NUMBER_TO = os.environ.get('TWILIO_WHATSAPP_NUMBER_TO')
+TWILIO_WHATSAPP_NUMBER_FROM = os.environ.get('TWILIO_WHATSAPP_NUMBER_FROM')

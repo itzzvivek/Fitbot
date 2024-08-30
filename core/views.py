@@ -16,7 +16,6 @@ from  .models import Client, Attendance, Subscription, GymOwner
 from .utils import send_whatsapp_message
 
 
-
 @api_view(['POST'])
 def register_client(request):
     gym_owner = GymOwner.objects.get(user=request.user)
@@ -29,7 +28,8 @@ def register_client(request):
     user.set_unusable_password()
     user.save()
 
-    client = Client.objects.create(gym_owner=gym_owner, user=user, phone_number=phone_number, membership_type=membership_type)
+    client = Client.objects.create(gym_owner=gym_owner, user=user, phone_number=phone_number,
+                                   membership_type=membership_type)
     
     message = f"Welcome, {username}! You have been successfully registered as a {membership_type} member."
     send_whatsapp_message(client, message)
@@ -78,27 +78,30 @@ def notify_expiring_subscriptions(request):
         subscription = Subscription.objects.get(client=client).last()
         if subscription and (subscription.end_date - timezone.now().date()).days() > 7:
             expiring_clients.append(client)
-            message = f"HI {client.user.username}, your subscription plan is expiring soon {subscription.end_date}. Please renew it to continue enjoying our services."
+            message = (f"HI {client.user.username}, your subscription plan is expiring soon {subscription.end_date}. "
+                       f"Please renew it to continue enjoying our services.")
             send_whatsapp_message(client.phone_number, message)
 
-    return Response({'status': 'success', 'message': f'{len(expiring_clients)} clients notified about expiring subscription'})
+    return Response({'status': 'success', 'message': f'{len(expiring_clients)} '
+                                                     f'clients notified about expiring subscription'})
 
 
+@csrf_exempt
 @api_view(['POST'])
 def handle_whatsapp_message(request):
-    phone_number = request.data.get('from', '').replace('whatsapp:', '')
-    message_body = request.data.get('message_body').strip().lower()
+    phone_number = request.data.get('From', '').replace('whatsapp:', '')
+    message_body = request.data.get('Body', '').strip().lower()
 
     try:
         client = Client.objects.get(phone_number=phone_number)
-    except client.DoesNotExist:
-        send_whatsapp_message(phone_number, "Sorry, you are not register with us.")
-        return Response({'status': 'error', 'message':'Client not found'})
+    except Client.DoesNotExist:
+        send_whatsapp_message(phone_number, "Sorry, you are not registered with us.")
+        return Response({'status': 'error', 'message': 'Client not found'})
 
     if message_body == 'check-in':
-        return check_in(request)
+        return check_in(request, client)
     elif message_body == 'my_plan':
-        return subscription_status(request)
+        return subscription_status(request, client)
     else:
         send_whatsapp_message(phone_number, "Sorry, I didn't understand that command.")
         return Response({'status': 'error', 'message': 'Invalid command'})
