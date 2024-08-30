@@ -55,7 +55,7 @@ def check_in(request):
 def subscription_status(request):
     gymowner = GymOwner.objects.get(user=request.user)
     phone_number = request.data.get('phone_number')
-    client = Client.objects.get(phone_number=phone_number)
+    client = Client.objects.get(phone_number=phone_number, gymowner=gymowner)
     subscription = Subscription.objects.filter(client=client).last()
 
     if subscription:
@@ -86,8 +86,14 @@ def notify_expiring_subscriptions(request):
 
 @api_view(['POST'])
 def handle_whatsapp_message(request):
-    phone_number = request.data.get('phone_number')
+    phone_number = request.data.get('from', '').replace('whatsapp:', '')
     message_body = request.data.get('message_body').strip().lower()
+
+    try:
+        client = Client.objects.get(phone_number=phone_number)
+    except client.DoesNotExist:
+        send_whatsapp_message(phone_number, "Sorry, you are not register with us.")
+        return Response({'status': 'error', 'message':'Client not found'})
 
     if message_body == 'check-in':
         return check_in(request)
