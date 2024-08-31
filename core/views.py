@@ -1,37 +1,37 @@
-from django.shortcuts import render
-from django.shortcuts import get_list_or_404
 from django.contrib.auth.models import User
-from django.conf import settings
 from django.utils import timezone
-from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from twilio.rest import Client
-from twilio.twiml.messaging_response import MessagingResponse
 
-from  .models import Client, Attendance, Subscription, GymOwner
+from .models import Client, Attendance, Subscription, GymOwner
 from .utils import send_whatsapp_message
 
 
 @api_view(['POST'])
 def register_client(request):
-    gym_owner = GymOwner.objects.get(user=request.user)
+    gym_name = request.data.get('gym_name')
     phone_number = request.POST.get('phone_number')
-    username = request.data.get('username')
+    client_username = request.data.get('username')
     email = request.data.get('email')
     membership_type = request.data.get('membership_type')
 
-    user = User.objects.create(username=username, email=email)
+    try:
+        gym_owner = GymOwner.objects.get(gym_name=gym_name)
+    except GymOwner.DoesNotExist:
+        return Response({'status': 'error', 'message': 'Gym not found'})
+
+    user = User.objects.create(client_username=client_username, email=email)
     user.set_unusable_password()
     user.save()
 
     client = Client.objects.create(gym_owner=gym_owner, user=user, phone_number=phone_number,
                                    membership_type=membership_type)
     
-    message = f"Welcome, {username}! You have been successfully registered as a {membership_type} member."
+    message = f"Welcome, {client_username}! You have been successfully registered as a {membership_type} member."
     send_whatsapp_message(client, message)
 
     return Response({'status': 'success', 'message': 'Client registered successfully.'})
