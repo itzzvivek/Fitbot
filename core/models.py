@@ -19,8 +19,9 @@ class GymOwner(models.Model):
     
 
 class Client(models.Model):
-    gym_owner = models.ForeignKey(GymOwner, on_delete=models.CASCADE, related_name='clients')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # gym_owner = models.ForeignKey(GymOwner, on_delete=models.CASCADE, related_name='clients')
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15)
     membership_type = models.CharField(max_length=50, choices=choices)
     joined_date = models.DateField(auto_now_add=True)
